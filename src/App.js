@@ -57,7 +57,7 @@ export default function App() {
         )}
         {isUserReady && status === "loading" && <Loader />}
         {isUserReady && status === "error" && <Error />}
-        {isUserReady && status === "ready" && <Quiz />}
+        {isUserReady && status === "ready" && <Quiz Questions={questions} />}
       </div>
     </div>
   );

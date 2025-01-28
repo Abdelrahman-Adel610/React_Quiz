@@ -262,3 +262,7 @@ progress {
   font-size: inherit;
   padding: 0.8rem;
 }
+
+.hidden {
+  display: none;
+}
