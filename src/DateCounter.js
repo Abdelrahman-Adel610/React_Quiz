@@ -1,35 +1,27 @@
-import { useState } from "react";
+import { useReducer } from "react";
+const initialState = { c: 0, s: 1 };
+function reducer(state, action) {
+  switch (action.type) {
+    case "inc":
+      return { ...state, c: state.c + state.s };
+    case "dec":
+      if (state.c - state.s >= 0) return { ...state, c: state.c - state.s };
+      return state;
+    case "setCounter":
+      return { ...state, c: action.payload };
+    case "setStep":
+      return { ...state, s: action.payload };
+    case "reset":
+      return initialState;
 
+    default:
+      throw new Error("Undefined Action");
+  }
+}
 function DateCounter() {
-  const [count, setCount] = useState(0);
-  const [step, setStep] = useState(1);
-
-  // This mutates the date object.
+  const [{ c: count, s: step }, dispatch] = useReducer(reducer, initialState);
   const date = new Date("june 21 2027");
   date.setDate(date.getDate() + count);
-
-  const dec = function () {
-    // setCount((count) => count - 1);
-    setCount((count) => count - step);
-  };
-
-  const inc = function () {
-    // setCount((count) => count + 1);
-    setCount((count) => count + step);
-  };
-
-  const defineCount = function (e) {
-    setCount(Number(e.target.value));
-  };
-
-  const defineStep = function (e) {
-    setStep(Number(e.target.value));
-  };
-
-  const reset = function () {
-    setCount(0);
-    setStep(1);
-  };
 
   return (
     <div className="counter">
@@ -39,21 +31,34 @@ function DateCounter() {
           min="0"
           max="10"
           value={step}
-          onChange={defineStep}
+          onChange={(e) => {
+            dispatch({ type: "setStep", payload: +e.target.value });
+          }}
         />
         <span>{step}</span>
       </div>
 
       <div>
-        <button onClick={dec}>-</button>
-        <input value={count} onChange={defineCount} />
-        <button onClick={inc}>+</button>
+        <button onClick={() => dispatch({ type: "dec" })}>-</button>
+        <input
+          value={count}
+          onChange={(e) =>
+            dispatch({ type: "setCounter", payload: +e.target.value })
+          }
+        />
+        <button onClick={() => dispatch({ type: "inc" })}>+</button>
       </div>
 
       <p>{date.toDateString()}</p>
 
       <div>
-        <button onClick={reset}>Reset</button>
+        <button
+          onClick={() => {
+            dispatch({ type: "reset" });
+          }}
+        >
+          Reset
+        </button>
       </div>
     </div>
   );
