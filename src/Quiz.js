@@ -1,71 +1,24 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useRef } from "react";
 
-const initialState = {
-  score: 0,
-  status: "notAnswered",
-  selected: -1,
-  crntQ: 0,
-  timer: {
-    min: 10,
-    sec: 0,
-  },
-};
-function reducer(state, action) {
-  switch (action.type) {
-    case "choose":
-      return {
-        ...state,
-        score: state.score + action.payload.isTrue * action.payload.value,
-        status: action.payload.isTrue ? "success" : "fail",
-        selected: action.payload.selectedOption,
-      };
-    case "nextQuestion":
-      return {
-        ...state,
-        selected: -1,
-        status: "notAnswered",
-        crntQ: state.crntQ + 1,
-      };
-    case "decTime":
-      if (state.timer.sec === 0 && state.timer.min > 0) {
-        return {
-          ...state,
-          timer: {
-            sec: 59,
-            min: state.timer.min - 1,
-          },
-        };
-      } else if (state.timer.sec > 0)
-        return {
-          ...state,
-          timer: {
-            sec: state.timer.sec - 1,
-            min: state.timer.min,
-          },
-        };
-      else return { ...state };
-    default:
-      throw new Error("Undefined action");
-  }
-}
-export default function Quiz({ Questions }) {
-  const [
-    {
-      status,
-      score,
-      selected,
-      timer: { sec, min },
-      crntQ,
+export default function Quiz({ Questions, dispatch, quiz }) {
+  const {
+    status,
+    score,
+    selected,
+    timer: { sec, min },
+    crntQ,
+  } = quiz;
+  const intervalId = useRef(null);
+  useEffect(
+    function () {
+      function callBack() {
+        dispatch({ type: "decTime" });
+      }
+      intervalId.current = setInterval(callBack, 1000);
+      return () => clearInterval(intervalId.current);
     },
-    dispatch,
-  ] = useReducer(reducer, initialState);
-  useEffect(function () {
-    function callBack() {
-      dispatch({ type: "decTime" });
-    }
-    setInterval(callBack, 1000);
-    return clearInterval(callBack);
-  }, []);
+    [dispatch]
+  );
   const { question, options, correctOption, points } = Questions[crntQ];
   return (
     <div>
@@ -112,9 +65,12 @@ export default function Quiz({ Questions }) {
       </div>
       <button
         className={`btn btn-ui ${selected === -1 ? "hidden" : ""}`}
-        onClick={() => dispatch({ type: "nextQuestion" })}
+        onClick={() => {
+          if (crntQ + 1 < Questions.length) dispatch({ type: "nextQuestion" });
+          else dispatch({ type: "finish" });
+        }}
       >
-        Next
+        {crntQ + 1 < Questions.length ? "Next" : "Finish"}
       </button>
     </div>
   );
