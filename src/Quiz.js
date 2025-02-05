@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
+import { useQuizContext } from "./contexts/QuizContext";
 
-export default function Quiz({ Questions, dispatch, quiz }) {
+export default function Quiz() {
+  const { questions, dispatch, quiz } = useQuizContext();
+
   const {
     status,
     score,
@@ -19,7 +22,7 @@ export default function Quiz({ Questions, dispatch, quiz }) {
     },
     [dispatch]
   );
-  const { question, options, correctOption, points } = Questions[crntQ];
+  const { question, options, correctOption, points } = questions[crntQ];
   return (
     <div>
       <div className="progress">
@@ -66,11 +69,11 @@ export default function Quiz({ Questions, dispatch, quiz }) {
       <button
         className={`btn btn-ui ${selected === -1 ? "hidden" : ""}`}
         onClick={() => {
-          if (crntQ + 1 < Questions.length) dispatch({ type: "nextQuestion" });
+          if (crntQ + 1 < questions.length) dispatch({ type: "nextQuestion" });
           else dispatch({ type: "finish" });
         }}
       >
-        {crntQ + 1 < Questions.length ? "Next" : "Finish"}
+        {crntQ + 1 < questions.length ? "Next" : "Finish"}
       </button>
     </div>
   );

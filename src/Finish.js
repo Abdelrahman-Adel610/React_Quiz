@@ -1,4 +1,7 @@
-export default function Finish({ dispatch, quiz, maxScore }) {
+import { useQuizContext } from "./contexts/QuizContext";
+
+export default function Finish() {
+  const { dispatch, quiz, maxScore } = useQuizContext();
   return (
     <>
       <div className="result">
